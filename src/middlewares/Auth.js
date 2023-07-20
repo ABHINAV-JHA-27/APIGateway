@@ -12,8 +12,10 @@ const Auth = (req, res, next) => {
         if (user.username == username && user.password === password) {
             next();
         } else {
-            res.status(401).send("Invalid password");
+            res.status(401).send("Invalid username or password");
         }
+    } else {
+        res.status(401).send("Invalid username");
     }
 };
 
