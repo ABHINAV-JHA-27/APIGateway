@@ -1,5 +1,7 @@
 import express from "express";
 const registry = require("../data/registry.json");
+import axios from "axios";
+import fs from "fs";
 
 const router = express.Router();
 
@@ -19,7 +21,19 @@ router.all("/:apiName/:path", (req, res) => {
 });
 
 router.get("/register", (req, res) => {
-    res.send(registry);
+    const registerationInfo = req.body;
+    registry.services[registerationInfo.name] = { ...registerationInfo };
+    fs.writeFile(
+        "./src/data/registry.json",
+        JSON.stringify(registry),
+        (err) => {
+            if (err) {
+                res.status(500).send("Error while registering service");
+            } else {
+                res.send("Service registered successfully");
+            }
+        }
+    );
 });
 
 export default router;
