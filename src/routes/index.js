@@ -21,9 +21,9 @@ router.all("/:apiName/:path", (req, res) => {
     }
 });
 
-router.get("/register", (req, res) => {
+router.post("/register", (req, res) => {
     const registerationInfo = req.body;
-    registry.services[registerationInfo.apiName] = { ...registerationInfo };
+    registry.services[registerationInfo.apiName].push({ ...registerationInfo });
     fs.writeFile(
         "./src/data/registry.json",
         JSON.stringify(registry),
