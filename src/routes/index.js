@@ -33,7 +33,7 @@ router.post("/register", (req, res) => {
         "/";
 
     if (apiAlreadyExists(registerationInfo)) {
-        res.status(400).send("API already exists");
+        res.status(400).send("Service already exists");
     } else {
         if (!registry.services[registerationInfo.apiName]) {
             registry.services[registerationInfo.apiName] = [];
@@ -54,6 +54,29 @@ router.post("/register", (req, res) => {
                 }
             }
         );
+    }
+});
+
+router.post("/unregister", (req, res) => {
+    const registerationInfo = req.body;
+    if (apiAlreadyExists(registerationInfo)) {
+        const index = registry.services[registerationInfo.apiName].findIndex(
+            (service) => service.url === registerationInfo.url
+        );
+        registry.services[registerationInfo.apiName].splice(index, 1);
+        fs.writeFile(
+            "./src/data/registry.json",
+            JSON.stringify(registry),
+            (err) => {
+                if (err) {
+                    res.status(500).send("Error while unregistering service");
+                } else {
+                    res.send("Service unregistered successfully");
+                }
+            }
+        );
+    } else {
+        res.status(400).send("Service doesn't exists");
     }
 });
 
