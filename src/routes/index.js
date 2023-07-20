@@ -1,7 +1,8 @@
 import express from "express";
-const registry = require("../data/registry.json");
 import axios from "axios";
 import fs from "fs";
+
+const registry = JSON.parse(fs.readFileSync("./src/data/registry.json"));
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.all("/:apiName/:path", (req, res) => {
 
 router.get("/register", (req, res) => {
     const registerationInfo = req.body;
-    registry.services[registerationInfo.name] = { ...registerationInfo };
+    registry.services[registerationInfo.apiName] = { ...registerationInfo };
     fs.writeFile(
         "./src/data/registry.json",
         JSON.stringify(registry),
