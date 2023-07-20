@@ -8,6 +8,31 @@ const registry = JSON.parse(fs.readFileSync("./src/data/registry.json"));
 
 const router = express.Router();
 
+router.post("/switch/:apiName", (req, res) => {
+    const apiName = req.params.apiName;
+    const reqBody = req.body;
+    const instances = registry.services[apiName].instances;
+    const index = instances.findIndex(
+        (instance) => instance.url === reqBody.url
+    );
+    if (index !== -1) {
+        res.status(400).send("Service doesn't exists");
+    } else {
+        instances[index].enabled = reqBody.enabled;
+        fs.writeFile(
+            "./src/data/registry.json",
+            JSON.stringify(registry),
+            (err) => {
+                if (err) {
+                    res.status(500).send("Error while switching service");
+                } else {
+                    res.send("Service switched successfully");
+                }
+            }
+        );
+    }
+});
+
 router.all("/:apiName/:path", (req, res) => {
     const service = registry.services[req.params.apiName];
     if (service) {
