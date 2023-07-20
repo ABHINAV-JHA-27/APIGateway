@@ -6,11 +6,13 @@ export const apiAlreadyExists = (registerationInfo) => {
     if (!registry.services[registerationInfo.apiName]) {
         return check;
     }
-    registry.services[registerationInfo.apiName].forEach((service) => {
-        if (service.url === registerationInfo.url) {
-            check = true;
-            return check;
+    registry.services[registerationInfo.apiName].instances.forEach(
+        (service) => {
+            if (service.url === registerationInfo.url) {
+                check = true;
+                return check;
+            }
         }
-    });
+    );
     return check;
 };
