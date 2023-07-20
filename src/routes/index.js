@@ -1,6 +1,7 @@
 import express from "express";
 import axios from "axios";
 import fs from "fs";
+import { apiAlreadyExists } from "../utils/helper.js";
 
 const registry = JSON.parse(fs.readFileSync("./src/data/registry.json"));
 
@@ -23,18 +24,37 @@ router.all("/:apiName/:path", (req, res) => {
 
 router.post("/register", (req, res) => {
     const registerationInfo = req.body;
-    registry.services[registerationInfo.apiName].push({ ...registerationInfo });
-    fs.writeFile(
-        "./src/data/registry.json",
-        JSON.stringify(registry),
-        (err) => {
-            if (err) {
-                res.status(500).send("Error while registering service");
-            } else {
-                res.send("Service registered successfully");
-            }
+    registerationInfo.url =
+        registerationInfo.protocol +
+        "://" +
+        registerationInfo.host +
+        ":" +
+        registerationInfo.port +
+        "/";
+
+    if (apiAlreadyExists(registerationInfo)) {
+        res.status(400).send("API already exists");
+    } else {
+        if (!registry.services[registerationInfo.apiName]) {
+            registry.services[registerationInfo.apiName] = [];
         }
-    );
+
+        registry.services[registerationInfo.apiName].push({
+            ...registerationInfo,
+        });
+
+        fs.writeFile(
+            "./src/data/registry.json",
+            JSON.stringify(registry),
+            (err) => {
+                if (err) {
+                    res.status(500).send("Error while registering service");
+                } else {
+                    res.send("Service registered successfully");
+                }
+            }
+        );
+    }
 });
 
 export default router;
